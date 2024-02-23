@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=$PROVIDER
+      - OPENVPN_PROTOCOL=tcp
+      - HTTPPROXY=on
+      - HTTPSPROXY=on
+      - SHADOWSOCKS=on
+      - OPENVPN_USER=$USER
+      - OPENVPN_PASSWORD=$PASSWORD
+      - SERVER_COUNTRIES=$COUNTRY
+    network_mode: "bridge"
+
+  gnirehtet:
+    image: ilyonku/gnirehtet:3
+    container_name: gnirehtet
+    privileged: true
+    devices:
+      - "/dev/bus/usb:/dev/bus/usb"
+    volumes:
+      - /$USER/.android:/root/.android
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    network_mode: "container:gluetun"
+# sudo COUNTRY='Country from list provider' PROVIDER='OpenVPN Provider' USER='Your OpenVPN USER' PASSWORD='Your OpenVPN Password' docker-compose -f ./vpn_proxy_automation.yml up
