@@ -38,7 +38,7 @@ RUN chmod +x $GNIREHTET_BIN
 WORKDIR /gnirehtet/gnirehtet-java
 
 # Command to run when the container starts
-CMD ["sh", "-c", "adb devices && gnirehtet run 2>&1 | tee gnirehtetlog.txt & GNIREHTET_PID=$!; sleep 10; echo Checking for Gnirehtet error...; if grep -q 'Gnirehtet: Cannot start client' gnirehtetlog.txt; then echo Error found, killing Gnirehtet; kill $GNIREHTET_PID; else echo No Gnirehtet error found, continuing; fi; wait $GNIREHTET_PID"]
+CMD ["sh", "-c", "echo '------------- Starting adb daemon -------------' && adb devices && echo '------------- Starting gnirehtet -------------' && gnirehtet run 2>&1 | tee gnirehtetlog.txt & GNIREHTET_PID=$!; sleep 10; echo Checking for Gnirehtet error...; if grep -q 'Gnirehtet: Cannot start client' gnirehtetlog.txt; then echo Error found, killing Gnirehtet; kill $GNIREHTET_PID; else echo No Gnirehtet error found, continuing; fi; wait $GNIREHTET_PID"]
 
 # Add a health check
 HEALTHCHECK --interval=5s --timeout=5s --start-period=3s --retries=3 \
