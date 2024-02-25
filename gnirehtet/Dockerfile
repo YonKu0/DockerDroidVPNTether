@@ -1,7 +1,6 @@
-# Use a specific version of Ubuntu for consistency
 FROM ubuntu:22.04
 
-# Install necessary packages including ADB, wget, and unzip, then clean up in the same RUN statement
+# Install necessary packages including ADB, wget, and unzip, then clean up
 RUN apt-get update && \
     apt-get install -y adb openjdk-11-jre-headless wget unzip && \
     rm -rf /var/lib/apt/lists/*
@@ -23,6 +22,13 @@ RUN mkdir -p $GNIREHTET_DIR && \
     sed -i 's|gnirehtet.jar|'$GNIREHTET_SUBDIR'/gnirehtet.jar|g' $GNIREHTET_SUBDIR/gnirehtet && \
     ln -sf $GNIREHTET_SUBDIR/gnirehtet $GNIREHTET_BIN && \
     chmod +x $GNIREHTET_BIN
+
+# Create a non-root user
+# Ensure the user has appropriate permissions for the work directory and necessary files
+RUN useradd -m gnirehtetuser && \
+    chown -R gnirehtetuser:gnirehtetuser /gnirehtet
+
+USER gnirehtetuser
 
 # Set gnirehtet working directory
 WORKDIR $GNIREHTET_SUBDIR
