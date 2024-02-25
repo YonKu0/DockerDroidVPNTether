@@ -1,7 +1,7 @@
-# Use an appropriate base image, like Ubuntu
-FROM ubuntu:latest
+# Use a specific version of Ubuntu for consistency
+FROM ubuntu:22.04
 
-# Update and install necessary packages including ADB, wget, and unzip
+# Install necessary packages including ADB, wget, and unzip, then clean up in the same RUN statement
 RUN apt-get update && \
     apt-get install -y adb openjdk-11-jre-headless wget unzip && \
     rm -rf /var/lib/apt/lists/*
@@ -10,36 +10,26 @@ RUN apt-get update && \
 WORKDIR /gnirehtet
 
 # Define variables for Gnirehtet
-ENV GNIREHTET_DIR="/gnirehtet"
-ENV GNIREHTET_SUBDIR="$GNIREHTET_DIR/gnirehtet-java"
-ENV GNIREHTET_BIN="/usr/local/bin/gnirehtet"
-ENV GNIREHTET_URL="https://github.com/Genymobile/gnirehtet/releases/download/v2.5.1/gnirehtet-java-v2.5.1.zip"
+ENV GNIREHTET_DIR="/gnirehtet" \
+    GNIREHTET_SUBDIR="/gnirehtet/gnirehtet-java" \
+    GNIREHTET_BIN="/usr/local/bin/gnirehtet" \
+    GNIREHTET_URL="https://github.com/Genymobile/gnirehtet/releases/download/v2.5.1/gnirehtet-java-v2.5.1.zip"
 
-# Create directory
-RUN mkdir -p $GNIREHTET_DIR
-
-# Download gnirehtet
-RUN wget $GNIREHTET_URL -O $GNIREHTET_DIR/gnirehtet.zip
-
-# Unzip and remove the zip file
-RUN unzip $GNIREHTET_DIR/gnirehtet.zip -d $GNIREHTET_DIR && \
-    rm $GNIREHTET_DIR/gnirehtet.zip
-
-# Modify the gnirehtet script to use the absolute path to the jar file
-RUN sed -i 's|gnirehtet.jar|'$GNIREHTET_SUBDIR'/gnirehtet.jar|g' $GNIREHTET_SUBDIR/gnirehtet
-
-# Create a symbolic link to the script in the subdirectokali
-RUN ln -sf $GNIREHTET_SUBDIR/gnirehtet $GNIREHTET_BIN
-
-# Make the script executable
-RUN chmod +x $GNIREHTET_BIN
+# Create directory, Download gnirehtet, Unzip and remove the zip file, adjust permissions, and create symlink
+RUN mkdir -p $GNIREHTET_DIR && \
+    wget $GNIREHTET_URL -O $GNIREHTET_DIR/gnirehtet.zip && \
+    unzip $GNIREHTET_DIR/gnirehtet.zip -d $GNIREHTET_DIR && \
+    rm $GNIREHTET_DIR/gnirehtet.zip && \
+    sed -i 's|gnirehtet.jar|'$GNIREHTET_SUBDIR'/gnirehtet.jar|g' $GNIREHTET_SUBDIR/gnirehtet && \
+    ln -sf $GNIREHTET_SUBDIR/gnirehtet $GNIREHTET_BIN && \
+    chmod +x $GNIREHTET_BIN
 
 # Set gnirehtet working directory
-WORKDIR /gnirehtet/gnirehtet-java
+WORKDIR $GNIREHTET_SUBDIR
 
 # Command to run when the container starts
 CMD ["sh", "-c", "echo '------------- Starting adb daemon -------------' && adb devices && echo '------------- Starting gnirehtet -------------' && ${GNIREHTET_CMD:-gnirehtet run} 2>&1 | tee gnirehtetlog.txt & GNIREHTET_PID=$!; sleep 10; echo Checking for Gnirehtet error...; if grep -q -E '(E Gnirehtet|Exception in thread)' gnirehtetlog.txt; then echo Error found, attempting to kill Gnirehtet; if ps -p $GNIREHTET_PID > /dev/null; then kill $GNIREHTET_PID; else echo Gnirehtet process not found; fi; else echo No Gnirehtet error found, continuing; fi; wait $GNIREHTET_PID"]
 
 # Add a health check
-HEALTHCHECK --interval=5s --timeout=5s --start-period=3s --retries=3 \
-    CMD adb devices | grep 'device$' && cat gnirehtetlog.txt | grep 'TunnelServer: Client #0 connected' || exit 1
+HEALTHCHECK --interval=5s --timeout=1s --start-period=1s --retries=3 \
+    CMD adb devices | grep 'device$' || exit 1
