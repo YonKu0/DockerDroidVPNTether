@@ -7,26 +7,27 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      - VPN_SERVICE_PROVIDER=$PROVIDER
+      - VPN_SERVICE_PROVIDER=surfshark
       - OPENVPN_PROTOCOL=tcp
       - HTTPPROXY=on
       - HTTPSPROXY=on
       - SHADOWSOCKS=on
-      - OPENVPN_USER=$USER
-      - OPENVPN_PASSWORD=$PASSWORD
+      - OPENVPN_USER=ydhqTQPHM497c2CKQFZ44wFJ
+      - OPENVPN_PASSWORD=gaK92SgTbtd9gupjFQnCHw6Y
       - SERVER_COUNTRIES=$COUNTRY
     network_mode: "bridge"
 
   gnirehtet:
-    image: ilyonku/gnirehtet:3
+    image: 048297768911 # Ensure this is the correct image name or tag
     container_name: gnirehtet
-    privileged: true
     devices:
-      - "/dev/bus/usb:/dev/bus/usb"
+      - "/dev/bus/usb"
     volumes:
-      - /$USER/.android:/root/.android
+      - "/dev/bus/usb:/dev/bus/usb" # Assuming you need this based on your command
+      - "$HOME/.android:/home/gnirehtetuser/.android"
     depends_on:
       gluetun:
         condition: service_healthy
     network_mode: "container:gluetun"
 # sudo COUNTRY='Country from list provider' PROVIDER='OpenVPN Provider' USER='Your OpenVPN USER' PASSWORD='Your OpenVPN Password' docker-compose -f ./vpn_proxy_automation.yml up
+# sudo COUNTRY='Albania' docker-compose -f ./vpn_proxy_automation.yml up
