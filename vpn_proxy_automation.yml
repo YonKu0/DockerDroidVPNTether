@@ -24,9 +24,9 @@ services:
       - "/dev/bus/usb"
     volumes:
       - "/dev/bus/usb:/dev/bus/usb"
-      - "$HOME/.android:/home/gnirehtetuser/.android"
+      - "$HOME/.android:/home/gnirehtet/.android"
     depends_on:
       gluetun:
         condition: service_healthy
     network_mode: "container:gluetun"
-# sudo HOME=$HOME COUNTRY='Albania' docker compose -f ./vpn_proxy_automation.yml up
+# sudo HOME=$HOME COUNTRY='Albania' docker compose -f ./gnirehtet_vpn.yml up
