@@ -12,8 +12,8 @@ services:
       - HTTPPROXY=on
       - HTTPSPROXY=on
       - SHADOWSOCKS=on
-      - OPENVPN_USER=ydhqTQPHM497c2CKQFZ44wFJ
-      - OPENVPN_PASSWORD=gaK92SgTbtd9gupjFQnCHw6Y
+      - OPENVPN_USER=$USERNAME
+      - OPENVPN_PASSWORD=$PASSWORD
       - SERVER_COUNTRIES=$COUNTRY
     network_mode: "bridge"
 
