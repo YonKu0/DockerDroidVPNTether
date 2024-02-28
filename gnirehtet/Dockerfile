@@ -42,5 +42,5 @@ RUN chmod +x ${GNIREHTET_DIR}/start-gnirehtet.sh
 ENTRYPOINT ["/bin/bash", "-c", "./start-gnirehtet.sh"]
 
 # Add a health check
-HEALTHCHECK --interval=5s --timeout=1s --start-period=1s --retries=3 \
-    CMD adb devices | grep 'device$' || exit 1
+HEALTHCHECK --interval=5s --timeout=1s --start-period=5s --retries=1 \
+    CMD grep -q -E '(E Gnirehtet|Exception in thread)' gnirehtetlog.txt && exit 1 || exit 0
