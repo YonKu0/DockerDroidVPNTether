@@ -37,17 +37,10 @@ COPY --from=builder /gnirehtet /home/gnirehtet
 ENV GNIREHTET_DIR="/home/gnirehtet" \
     GNIREHTET_BIN="/usr/local/bin/gnirehtet"
 
-# Attempt to remove 'ubuntu' user and its group first, if they exist
-RUN if id ubuntu &>/dev/null; then \
-    userdel ubuntu || true; \
-    rm -rf /home/ubuntu; \
-    fi && \
-    if getent group ubuntu &>/dev/null; then \
-    groupdel ubuntu || true; \
-    fi
-
 # Setup necessary users and permissions
-RUN groupadd -g 1000 gnirehtet && \
+RUN rm -rf /home/ubuntu && \
+    userdel ubuntu && \
+    groupadd -g 1000 gnirehtet && \
     useradd -m -d "$GNIREHTET_DIR" -s /bin/bash -u 1000 -g gnirehtet gnirehtet && \
     usermod -aG plugdev gnirehtet && \
     ln -sf ${GNIREHTET_DIR}/gnirehtet ${GNIREHTET_BIN} && \
