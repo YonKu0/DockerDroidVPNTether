@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 
 # Detect architecture
-ARG TARGETARCH
+ARG TARGETARCH 
 
 # Install necessary packages including ADB, Java Runtime Environment (Java 17), Node.js, npm, wget, and unzip
 RUN apt-get update -q && \
@@ -17,12 +17,12 @@ ENV ANDROID_SDK_ROOT=$ANDROID_HOME
 ENV PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
 
 # Download and setup Android SDK command-line tools
-RUN mkdir -p $ANDROID_HOME/cmdline-tools && \
+RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
     wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip && \
-    unzip -q /tmp/cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools && \
+    unzip -q /tmp/cmdline-tools.zip -d ${ANDROID_HOME}/cmdline-tools && \
     rm /tmp/cmdline-tools.zip && \
-    mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest && \
-    ln -s /usr/bin/adb $ANDROID_HOME/cmdline-tools/latest/bin/adb
+    mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest && \
+    ln -s /usr/bin/adb ${ANDROID_HOME}/cmdline-tools/latest/bin/adb
 
 # Accept Android SDK licenses before installing components
 RUN yes | sdkmanager --licenses
@@ -31,23 +31,20 @@ RUN yes | sdkmanager --licenses
 RUN sdkmanager --update && \
     sdkmanager "build-tools;34.0.0" "platforms;android-34"
 
-# Set environment variables for adbjavanode directory and binary
-ENV ADBJAVANODE_DIR="/home/adbjavanode"
+# Set environment variables for android-sdk-node-java directory and binary
+ENV USER_HOME_DIR="/home/android-sdk-node-java"
 
 # Setup necessary users and permissions
 RUN rm -rf /home/ubuntu && \
     userdel ubuntu && \
-    groupadd -g 1000 adbjavanode && \
-    useradd -m -d "$ADBJAVANODE_DIR" -s /bin/bash -u 1000 -g adbjavanode adbjavanode && \
-    usermod -aG plugdev adbjavanode && \
-    chown -R adbjavanode:adbjavanode ${ADBJAVANODE_DIR}
+    groupadd -g 1000 android-sdk-node-java && \
+    useradd -m -d ${USER_HOME_DIR} -s /bin/bash -u 1000 -g android-sdk-node-java android-sdk-node-java && \
+    usermod -aG plugdev android-sdk-node-java && \
+    chown -R android-sdk-node-java:android-sdk-node-java ${USER_HOME_DIR}
 
-# Switch to the adbjavanode user for running the service
-USER adbjavanode
-WORKDIR ${ADBJAVANODE_DIR}
-
-# Expose port 5037 (ADB port)
-EXPOSE 5037
+# Switch to the android-sdk-node-java user for running the service
+USER android-sdk-node-java
+WORKDIR ${USER_HOME_DIR}
 
 # Set the default shell to bash
 SHELL ["/bin/bash", "-c"]
