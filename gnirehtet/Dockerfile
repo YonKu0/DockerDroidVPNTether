@@ -41,7 +41,7 @@ ENV GNIREHTET_DIR="/home/gnirehtet" \
 RUN rm -rf /home/ubuntu && \
     userdel ubuntu && \
     groupadd -g 1000 gnirehtet && \
-    useradd -m -d "$GNIREHTET_DIR" -s /bin/bash -u 1000 -g gnirehtet gnirehtet && \
+    useradd -m -d ${GNIREHTET_DIR} -s /bin/bash -u 1000 -g gnirehtet gnirehtet && \
     usermod -aG plugdev gnirehtet && \
     ln -sf ${GNIREHTET_DIR}/gnirehtet ${GNIREHTET_BIN} && \
     chown -R gnirehtet:gnirehtet ${GNIREHTET_DIR}
