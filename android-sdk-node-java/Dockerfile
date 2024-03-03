@@ -5,7 +5,7 @@ ARG TARGETARCH
 
 # Install necessary packages including ADB, Java Runtime Environment (Java 17), Node.js, npm, wget, and unzip
 RUN apt-get update -q && \
-    apt-get install -y --no-install-recommends wget unzip openjdk-17-jre-headless nodejs npm android-sdk-platform-tools adb && \
+    apt-get install -y --no-install-recommends curl wget unzip openjdk-17-jre-headless nodejs npm android-sdk-platform-tools adb && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -22,7 +22,8 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
     unzip -q /tmp/cmdline-tools.zip -d ${ANDROID_HOME}/cmdline-tools && \
     rm /tmp/cmdline-tools.zip && \
     mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest && \
-    ln -s /usr/bin/adb ${ANDROID_HOME}/cmdline-tools/latest/bin/adb
+    ln -s /usr/bin/adb ${ANDROID_HOME}/cmdline-tools/latest/bin/adb && \
+    apt remove -y wget unzip
 
 # Accept Android SDK licenses before installing components
 RUN yes | sdkmanager --licenses
